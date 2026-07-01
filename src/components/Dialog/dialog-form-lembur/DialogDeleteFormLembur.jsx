@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import api from '../../../services/api.js'
-import { XClose } from '../../template/TemplateIcons.jsx'
+import { XClose } from '../../layoute/TemplateIcons.jsx'
 
 function getBrandDisplayName(brand) {
   return brand?.name || brand?.brand_name || brand?.code || brand?.brand_code || 'brand ini'

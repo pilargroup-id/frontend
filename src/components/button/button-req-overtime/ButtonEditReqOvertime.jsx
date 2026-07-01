@@ -1,5 +1,5 @@
 import CreateButton from '../CreateButton.jsx'
-import { Edit03 } from '../../template/TemplateIcons.jsx'
+import { Edit03 } from '../../layoute/TemplateIcons.jsx'
 
 function ButtonEditPicUser({ className = '', title = 'Edit', ...buttonProps }) {
   return (

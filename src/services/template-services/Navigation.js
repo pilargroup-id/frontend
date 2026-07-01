@@ -7,12 +7,11 @@ import {
   Chart01,
   Folder,
   TrendingUp,
-} from '../../components/template/TemplateIcons.jsx'
+} from '../../components/layoute/TemplateIcons.jsx'
 
 export const defaultNavigationPath = '/dashboard'
 
 export const implementedNavigationPaths = [
-  '/FormLembur',
   '/TicketsOverview',
   '/ProjectsOverview',
   '/Reports',
@@ -24,12 +23,6 @@ export const implementedNavigationPaths = [
 ]
 
 export const primaryNavigationItems = [
-  {
-    id: 'form-lembur',
-    label: 'Form Lembur',
-    href: '/FormLembur',
-    icon: Ticket01,
-  },
   {
     id: 'tickes-overview',
     label: 'Tickets Overview',

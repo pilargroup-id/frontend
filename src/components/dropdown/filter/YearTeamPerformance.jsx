@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { ChevronDown } from '../../template/TemplateIcons.jsx'
+import { ChevronDown } from '../../layoute/TemplateIcons.jsx'
 
 function normalizeOption(option) {
   if (typeof option === 'object' && option !== null) {

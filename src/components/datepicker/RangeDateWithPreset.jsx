@@ -11,7 +11,7 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useAlert } from '../../hooks/useAlert';
 import AlertModal from '../dialog/DialogAlert.jsx';
-import { XClose } from '../template/TemplateIcons.jsx';
+import { XClose } from '../layoute/TemplateIcons.jsx';
 
 const formatDateDisplay = (monthDay, year) => {
   const [month, day] = monthDay.split('-');

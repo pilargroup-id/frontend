@@ -1,5 +1,5 @@
 import CreateButton from '../CreateButton.jsx'
-import { Trash03 } from '../../template/TemplateIcons.jsx'
+import { Trash03 } from '../../layoute/TemplateIcons.jsx'
 
 function ButtonDeleteBrand({ className = '', title = 'Delete', ...buttonProps }) {
   return (

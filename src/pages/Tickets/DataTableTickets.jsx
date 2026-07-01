@@ -6,7 +6,7 @@ import DataTable, {
   DataTableIdentity,
   DataTableStatus,
 } from '../../components/table/DataTable.jsx'
-import { Edit03, Trash03 } from '../../components/template/TemplateIcons.jsx'
+import { Edit03, Trash03 } from '../../components/layoute/TemplateIcons.jsx'
 
 const PAGE_SIZE_OPTIONS = [5, 10, 15]
 const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0]

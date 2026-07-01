@@ -5,7 +5,7 @@ import {
     Ticket01,
     Table01,
     Chart01,
-} from '../../components/template/TemplateIcons.jsx'
+} from '../../components/layoute/TemplateIcons.jsx'
 
 export const implementedNavigationPaths = [
   '/dashboard',

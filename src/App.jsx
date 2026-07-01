@@ -1,321 +1,41 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import BackgroundMain from './components/template/BackgroundMain.jsx'
+
 import DialogDelete from './components/dialog/DialogDelete.jsx'
 import DialogEdit from './components/dialog/DialogEdit.jsx'
-import Header from './components/template/Header.jsx'
-import Sidebar from './components/template/Sidebar.jsx'
-import DataTable, {
-  DataTableChips,
-  DataTableIdentity,
-  DataTableStatus,
-} from './components/table/DataTable.jsx'
+
+// layout components
+import Header from './components/layoute/Header.jsx'
+import Sidebar from './components/layoute/Sidebar.jsx'
+import BackgroundMain from './components/layoute/BackgroundMain.jsx'
+
+import DataTable from './components/table/DataTable.jsx'
+
 import DataTableAction from './components/table/DataTableAction.jsx'
 import ButtonMain from './components/button/ButtonMain.jsx'
 import ButtonRangeDate from './components/button/ButtonRangeDate.jsx'
-import BarChartPreview from './components/chart/BarChart.jsx'
-import DonutChartPreview from './components/chart/DonutChart.jsx'
-import HorizontalBarChartPreview from './components/chart/HorizontalBarChart.jsx'
-import LineChartPreview from './components/chart/LineChart.jsx'
-import PieChartPreview from './components/chart/PieChart.jsx'
-import { Edit03, Trash03, Users01 } from './components/template/TemplateIcons.jsx'
-import FormLembur from './pages/req-overtime/FormLemburPages.js'
+
+// chart import
+import { Edit03, Trash03, Users01 } from './components/layoute/TemplateIcons.jsx'
+
+// dummy data
+import { chartViews } from './dummy/chartViews.js'
+import { userRows } from './dummy/dataTable.js'
+import { pageDetails } from './dummy/pageDetails.js'
+import { userTableColumns } from './dummy/userTableColumns.jsx'
+import MyTickets from './pages/my-tickets/MyTickets.jsx'
 
 function getCurrentPath() {
   if (typeof window === 'undefined') {
-    return '/MyTickets'
+    return '/documents'
   }
 
-  return window.location.pathname === '/' ? '/MyTickets' : window.location.pathname
-}
-
-const pageDetails = {
-  '/MyTickets': {
-    title: 'MyTickets',
-    eyebrow: 'Legal Operations',
-    value: '24',
-    detail: 'Tiket aktif yang sedang diproses oleh tim legal.',
-  },
-  '/tickets': {
-    title: 'Tickets',
-    eyebrow: 'Ticket Queue',
-    value: '12',
-    detail: 'Permintaan baru yang menunggu review awal.',
-  },
-  '/documents': {
-    title: 'Documents',
-    eyebrow: 'Document Control',
-    value: '8',
-    detail: 'Dokumen legal yang membutuhkan validasi.',
-  },
-  '/Table': {
-    title: 'Data Table',
-    eyebrow: 'Table Template',
-    value: '8',
-    detail: 'Contoh komponen table dengan pencarian, detail row, action, dan pagination.',
-  },
-  '/TableActions': {
-    title: 'Data Table Actions',
-    eyebrow: 'Table Template',
-    value: '8',
-    detail: 'Contoh komponen table dengan kolom action inline untuk edit dan delete.',
-  },
-  '/TicketsOverview': {
-    title: 'Tickets Overview',
-    eyebrow: 'Ticket Analytics',
-    value: '24',
-    detail: 'Ringkasan status dan performa tiket legal.',
-  },
-  '/ProjectsOverview': {
-    title: 'Projects Overview',
-    eyebrow: 'Project Summary',
-    value: '7',
-    detail: 'Ringkasan proyek dan aktivitas terkait.',
-  },
-  '/Chart': {
-    title: 'Chart',
-    eyebrow: 'Visual Analytics',
-    value: '5',
-    detail: 'Kumpulan chart yang siap dipakai untuk visualisasi data.',
-  },
-  '/Reports/TeamPerformance': {
-    title: 'Team Performance',
-    eyebrow: 'Reports',
-    value: '4',
-    detail: 'Performa bulanan setiap user lengkap dengan progress completed dan pending.',
-  },
-  '/users': {
-    title: 'Users',
-    eyebrow: 'Access Control',
-    value: '16',
-    detail: 'User internal yang memiliki akses ke aplikasi legal dengan berbagai peran dan status.',
-  },
-  '/settings': {
-    title: 'Settings',
-    eyebrow: 'Workspace',
-    value: '5',
-    detail: 'Konfigurasi utama untuk alur kerja legal.',
-  },
-  '/login': {
-    title: 'Login',
-    eyebrow: 'Session',
-    value: '0',
-    detail: 'Sesi pengguna sudah diarahkan keluar dari aplikasi.',
-  },
+  return window.location.pathname === '/' ? '/documents' : window.location.pathname
 }
 
 const tablePagePaths = ['/Table', '/TableActions', '/users']
 const USERS_PAGE_SIZE_OPTIONS = [5, 10, 25, 50]
 const DEFAULT_USERS_PAGE_SIZE = USERS_PAGE_SIZE_OPTIONS[0]
-
-const userRows = [
-  {
-    userId: 'USR-001',
-    id: 'alfatih',
-    name: 'Al Fatih',
-    username: 'alfatih',
-    email: 'alfatih@pilargroup.id',
-    phone: '+62 812 1000 1201',
-    department: 'Information Technology',
-    departmentId: 'DPT-IT',
-    role: 'Frontend Developer',
-    jobLevel: 'Staff',
-    status: 'Active',
-    statusKey: 'active',
-    apps: ['MyTickets', 'Legal Docs', 'Tickets'],
-    createdAt: '2026-01-10',
-    updatedAt: '2026-04-29',
-    lastActive: '2026-04-30 09:10',
-  },
-  {
-    userId: 'USR-002',
-    id: 'nabila',
-    name: 'Nabila Putri',
-    username: 'nabila',
-    email: 'nabila@pilargroup.id',
-    phone: '+62 812 1000 1202',
-    department: 'Legal',
-    departmentId: 'DPT-LGL',
-    role: 'Legal Officer',
-    jobLevel: 'Senior Staff',
-    status: 'Active',
-    statusKey: 'active',
-    apps: ['Legal Docs', 'Tickets'],
-    createdAt: '2026-01-18',
-    updatedAt: '2026-04-24',
-    lastActive: '2026-04-30 08:42',
-  },
-  {
-    userId: 'USR-003',
-    id: 'bagas',
-    name: 'Bagas Pratama',
-    username: 'bagas',
-    email: 'bagas@pilargroup.id',
-    phone: '+62 812 1000 1203',
-    department: 'Finance',
-    departmentId: 'DPT-FIN',
-    role: 'Finance Reviewer',
-    jobLevel: 'Supervisor',
-    status: 'Pending',
-    statusKey: 'pending',
-    apps: ['Dashboard', 'Approval'],
-    createdAt: '2026-02-03',
-    updatedAt: '2026-04-22',
-    lastActive: '2026-04-28 16:20',
-  },
-  {
-    userId: 'USR-004',
-    id: 'sarah',
-    name: 'Sarah Wijaya',
-    username: 'sarah',
-    email: 'sarah@pilargroup.id',
-    phone: '+62 812 1000 1204',
-    department: 'Procurement',
-    departmentId: 'DPT-PRC',
-    role: 'Procurement Lead',
-    jobLevel: 'Manager',
-    status: 'Active',
-    statusKey: 'active',
-    apps: ['Vendor Portal', 'Approval', 'Tickets'],
-    createdAt: '2026-02-12',
-    updatedAt: '2026-04-25',
-    lastActive: '2026-04-29 17:15',
-  },
-  {
-    userId: 'USR-005',
-    id: 'reza',
-    name: 'Reza Mahendra',
-    username: 'reza',
-    email: 'reza@pilargroup.id',
-    phone: '+62 812 1000 1205',
-    department: 'Operations',
-    departmentId: 'DPT-OPS',
-    role: 'Operations Admin',
-    jobLevel: 'Staff',
-    status: 'Inactive',
-    statusKey: 'inactive',
-    apps: ['Dashboard'],
-    createdAt: '2026-02-20',
-    updatedAt: '2026-03-29',
-    lastActive: '2026-03-27 11:05',
-  },
-  {
-    userId: 'USR-006',
-    id: 'dinda',
-    name: 'Dinda Maharani',
-    username: 'dinda',
-    email: 'dinda@pilargroup.id',
-    phone: '+62 812 1000 1206',
-    department: 'Human Capital',
-    departmentId: 'DPT-HC',
-    role: 'HR Business Partner',
-    jobLevel: 'Senior Staff',
-    status: 'Active',
-    statusKey: 'active',
-    apps: ['Dashboard', 'User Access'],
-    createdAt: '2026-03-01',
-    updatedAt: '2026-04-27',
-    lastActive: '2026-04-30 07:58',
-  },
-  {
-    userId: 'USR-007',
-    id: 'yusuf',
-    name: 'Yusuf Hidayat',
-    username: 'yusuf',
-    email: 'yusuf@pilargroup.id',
-    phone: '+62 812 1000 1207',
-    department: 'Sales',
-    departmentId: 'DPT-SLS',
-    role: 'Sales Manager',
-    jobLevel: 'Manager',
-    status: 'Pending',
-    statusKey: 'pending',
-    apps: ['CRM', 'Dashboard'],
-    createdAt: '2026-03-12',
-    updatedAt: '2026-04-18',
-    lastActive: '2026-04-18 13:30',
-  },
-  {
-    userId: 'USR-008',
-    id: 'mira',
-    name: 'Mira Kartika',
-    username: 'mira',
-    email: 'mira@pilargroup.id',
-    phone: '+62 812 1000 1208',
-    department: 'Legal',
-    departmentId: 'DPT-LGL',
-    role: 'Contract Analyst',
-    jobLevel: 'Staff',
-    status: 'Active',
-    statusKey: 'active',
-    apps: ['Legal Docs', 'Tickets', 'Approval'],
-    createdAt: '2026-03-22',
-    updatedAt: '2026-04-29',
-    lastActive: '2026-04-29 15:44',
-  },
-]
-
-const userTableColumns = [
-  {
-    key: 'user',
-    header: 'User',
-    render: (user) => (
-      <DataTableIdentity
-        title={user.name}
-        subtitle={user.username}
-        badge={
-          <DataTableStatus variant={user.statusKey} inline>
-            {user.status}
-          </DataTableStatus>
-        }
-      />
-    ),
-  },
-  {
-    key: 'department',
-    header: 'Department',
-    accessor: 'department',
-  },
-  {
-    key: 'role',
-    header: 'Role',
-    accessor: 'role',
-  },
-  {
-    key: 'apps',
-    header: 'Apps',
-    render: (user) => <DataTableChips items={user.apps} />,
-  },
-]
-
-const chartViews = [
-  {
-    title: 'Line Chart',
-    eyebrow: 'Monthly Trend',
-    Component: LineChartPreview,
-    wide: true,
-  },
-  {
-    title: 'Bar Chart',
-    eyebrow: 'Case Progress',
-    Component: BarChartPreview,
-  },
-  {
-    title: 'Horizontal Bar',
-    eyebrow: 'Category Split',
-    Component: HorizontalBarChartPreview,
-  },
-  {
-    title: 'Donut Chart',
-    eyebrow: 'Distribution',
-    Component: DonutChartPreview,
-  },
-  {
-    title: 'Pie Chart',
-    eyebrow: 'Comparison',
-    Component: PieChartPreview,
-  },
-]
 
 function getPaginationItems(currentPage, totalPages) {
   if (totalPages <= 5) {
@@ -630,8 +350,6 @@ function App() {
 
             {activePath === '/MyTickets' ? (
               <MyTickets activePage={activePage} searchQuery={searchQuery} />
-            ) : isTeamPerformancePage ? (
-              <TeamPerformence />
             ) : isTablePage ? (
               <section className="dashboard-panel users-table-card" aria-label={activePage.title}>
                 <div className="users-table-card__header">

@@ -5,7 +5,7 @@ import GroupBarChartTP from '../../../components/chart/chart-team-performence/Gr
 import GroupBarTimeSpendMT from '../../../components/chart/chart-team-performence/GroupBarTimeSpendMT.jsx'
 import YearDropdownTP from '../../../components/dropdown/filter/YearTeamPerformance.jsx'
 import ButtonExport from '../../../components/button/ButtonExport.jsx'
-import { FileText01 } from '../../../components/template/TemplateIcons.jsx'
+import { FileText01 } from '../../../components/layoute/TemplateIcons.jsx'
 
 const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May']
 

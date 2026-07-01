@@ -1,4 +1,4 @@
-import { Edit03, Trash03 } from '../../components/template/TemplateIcons.jsx'
+import { Edit03, Trash03 } from '../../components/layoute/TemplateIcons.jsx'
 
 export const PAGE_SIZE_OPTIONS = [5, 10, 15]
 export const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0]

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import ButtonRangeDate from '../../components/button/ButtonRangeDate.jsx'
-import { Ticket01 } from '../../components/template/TemplateIcons.jsx'
+import { Ticket01 } from '../../components/layoute/TemplateIcons.jsx'
 import CardStatusProjects from './CardStatusProjects.jsx'
 import DataTableTickets, { INITIAL_TICKET_ROWS } from './DataTableProjects.jsx'
 import DialogCreateProjects from '../../components/dialog/DialogCreateProjects.jsx'

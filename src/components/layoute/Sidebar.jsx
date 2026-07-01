@@ -6,7 +6,7 @@ import {
   implementedNavigationPaths,
   primaryNavigationItems,
   secondaryNavigationItems,
-} from '../../services/template-services/Navigation.js'
+} from '../../services/layoutes/Navigation.js'
 import '../../styles/template-style/TemplateComponents.css'
 
 function getInitials(name) {

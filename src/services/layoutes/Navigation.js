@@ -1,8 +1,5 @@
 import {
-  FileText01,
-  LayoutDashboard,
   LogOutLeft01,
-  Ticket01,
   Table01,
   Chart01,
   Folder,
@@ -12,10 +9,7 @@ import {
 export const defaultNavigationPath = '/dashboard'
 
 export const implementedNavigationPaths = [
-  '/TicketsOverview',
-  '/ProjectsOverview',
-  '/Reports',
-  '/Reports/TeamPerformance',
+  '/Menu1',
   '/Table',
   '/TableActions',
   '/users',
@@ -24,34 +18,10 @@ export const implementedNavigationPaths = [
 
 export const primaryNavigationItems = [
   {
-    id: 'tickes-overview',
-    label: 'Tickets Overview',
-    href: '/TicketsOverview',
-    icon: TrendingUp,
-  },
-  {
-    id: 'projects-overview',
-    label: 'Projects Overview',
-    href: '/ProjectsOverview',
+    id: 'menu1',
+    label: 'Menu 1',
+    href: '/Menu1',
     icon: Folder,
-  },
-  {
-    id: 'reports',
-    label: 'Reports',
-    href: '/Reports',
-    icon: FileText01,
-    children: [
-      {
-        id: 'team-performance',
-        label: 'Team Performance',
-        href: '/Reports/TeamPerformance',
-      },
-      {
-        id : 'executive-insights',
-        label: 'Executive Insights',
-        href: '/Reports/ExecutiveInsights',
-      }
-    ]
   },
   {
     id: 'table',

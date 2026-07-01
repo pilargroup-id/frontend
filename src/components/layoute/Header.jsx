@@ -20,7 +20,7 @@ import {
 import '../../styles/template-style/TemplateComponents.css'
 
 function Header({
-  title = 'Overtime',
+  title = 'Template Pilar',
   breadcrumb = [
     { label: 'All', href: '#' },
     { label: 'Finance', href: '#', active: true },

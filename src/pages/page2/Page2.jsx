@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import DataTable from '../../components/table/DataTable.jsx';
+import DataTableAction from '../../components/table/DataTableAction.jsx';
 import { userRows } from '../../dummy/dataTable.js';
 import { userTableColumns } from '../../dummy/userTableColumns.jsx';
 
@@ -22,11 +22,11 @@ function userMatchesSearch(user, searchQuery = '') {
   ].some((value) => String(value).toLowerCase().includes(query));
 }
 
-function Page1(props) {
+function Page2(props) {
   const outletContext = useOutletContext() ?? {}
   const activePage = props.activePage ?? outletContext.activePage
   const searchQuery = props.searchQuery ?? outletContext.searchQuery ?? ''
-  const pageTitle = activePage?.title ?? 'Page1'
+  const pageTitle = activePage?.title ?? 'Page2'
   const pageEyebrow = activePage?.eyebrow ?? 'Master Data'
   const filteredUsers = useMemo(
     () => userRows.filter((user) => userMatchesSearch(user, searchQuery)),
@@ -52,7 +52,7 @@ function Page1(props) {
           {searchQuery ? `Search: ${searchQuery}` : 'Pages 1 Test'}
         </p>
       </div>
-      <DataTable
+      <DataTableAction
         rows={filteredUsers}
         columns={userTableColumns}
         getRowId={(user) => user.userId}
@@ -66,4 +66,4 @@ function Page1(props) {
   )
 }
 
-export default Page1
+export default Page2

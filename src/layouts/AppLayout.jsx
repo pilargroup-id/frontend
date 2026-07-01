@@ -67,11 +67,11 @@ function AppLayout({
 
       <div className="dashboard-stage">
         <Header
-          title="Overtime"
+          title="Template Pilar"
           showMenuButton
           onMenuToggle={() => setMobileSidebarOpen(true)}
           breadcrumb={[
-            { label: 'Overtime', href: '#' },
+            { label: 'Template Pilar', href: '#' },
             { label: resolvedPageTitle, href: '#', active: true },
           ]}
           searchProps={{

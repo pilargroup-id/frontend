@@ -1,7 +1,7 @@
 import { Fragment, isValidElement, useState } from 'react'
 
 import CreateButton from '../button/ButtonCreate.jsx'
-import { ChevronDown } from '../layoute/TemplateIcons.jsx'
+import { ChevronDown, ChevronUp } from '../layoute/TemplateIcons.jsx'
 import DetailCard from '../../mobile/data-card/DetailCard.jsx'
 
 function getInitials(value = '') {
@@ -317,6 +317,10 @@ function resolveResponsiveValue(value, row, index) {
   return value
 }
 
+function resolveActionFlag(flag, row, index) {
+  return typeof flag === 'function' ? flag(row, index) : flag
+}
+
 function getIdentityColumnContent(column, row, index) {
   const value = getColumnValue(column, row, index)
 
@@ -454,12 +458,13 @@ function resolveMobileCardActions(actionsConfig, row, index, defaultActions) {
         : defaultActions
 
   return sourceActions
-    .filter((action) => !(action?.hidden?.(row, index) ?? action?.hidden))
+    .filter((action) => !resolveActionFlag(action?.hidden, row, index))
     .map((action) => ({
       key: action.key ?? action.label,
       label: resolveResponsiveValue(action.label ?? action.key ?? 'Action', row, index),
       variant: resolveResponsiveValue(action.variant, row, index),
-      disabled: action.disabled?.(row, index) ?? action.disabled,
+      icon: action.icon,
+      disabled: resolveActionFlag(action.disabled, row, index),
       onClick: (event) => action.onClick?.(row, index, event),
     }))
 }
@@ -674,6 +679,7 @@ function DataTable({
   columns = [],
   getRowId = getDefaultRowId,
   detail = null,
+  detailTogglePlacement = 'column',
   actions = [],
   mobileCard,
   pagination = true,
@@ -691,6 +697,9 @@ function DataTable({
     getDefaultPaginationConfig(pagination).pageSize ?? 5,
   )
   const hasDetail = Boolean(detail)
+  const detailToggleInFirstCell =
+    hasDetail && detailTogglePlacement === 'first-cell' && columns.length > 0
+  const showDetailColumn = hasDetail && !detailToggleInFirstCell
   const hasMobileCard = mobileCard !== false
   const mobileCardSurface = getDefaultMobileCardSurface(mobileCard)
   const hasPagination = pagination !== false && pagination !== null
@@ -720,7 +729,7 @@ function DataTable({
     ? expandedRowKey
     : null
   const resolvedEmptyMessage = emptyMessage ?? tableMessage ?? 'Belum ada data.'
-  const colSpan = columns.length + (hasDetail ? 1 : 0)
+  const colSpan = columns.length + (showDetailColumn ? 1 : 0)
   const currentPageSize = Number(effectivePageSize)
   const pageSizeOptions = normalizePageSizeOptions(
     paginationConfig.pageSizeOptions ?? [5, 10, 25, 50],
@@ -802,6 +811,28 @@ function DataTable({
     setLocalPage(page)
   }
 
+  const renderDetailToggleButton = (rowKey, isExpanded, accordionId, className = '') => (
+    <CreateButton
+      variant="icon"
+      className={joinClassNames('users-table__icon-button--pagination-card', className)}
+      type="button"
+      onClick={(event) => {
+        event.stopPropagation()
+        handleToggleRow(rowKey)
+      }}
+      aria-label={isExpanded ? 'Tutup detail' : 'Buka detail'}
+      aria-expanded={isExpanded}
+      aria-controls={accordionId}
+      title={isExpanded ? 'Tutup detail' : 'Buka detail'}
+    >
+      {isExpanded ? (
+        <ChevronUp size={16} aria-hidden="true" />
+      ) : (
+        <ChevronDown size={16} aria-hidden="true" />
+      )}
+    </CreateButton>
+  )
+
   return (
     <div
       className={joinClassNames(
@@ -824,7 +855,7 @@ function DataTable({
                 </th>
               ))}
 
-              {hasDetail ? (
+              {showDetailColumn ? (
                 <th scope="col" className="users-table__detail-header">
                   {detail.columnLabel ?? 'Detail'}
                 </th>
@@ -866,38 +897,36 @@ function DataTable({
                       aria-expanded={hasDetail ? isExpanded : undefined}
                       aria-controls={hasDetail ? accordionId : undefined}
                     >
-                      {columns.map((column, columnIndex) => (
-                        <td
-                          key={getColumnKey(column, columnIndex)}
-                          className={getColumnClassName(column, 'cell')}
-                          style={getColumnStyle(column, 'cell')}
-                        >
-                          {renderColumnValue(column, row, index)}
-                        </td>
-                      ))}
+                      {columns.map((column, columnIndex) => {
+                        const columnValue = renderColumnValue(column, row, index)
+                        const showInlineToggle = detailToggleInFirstCell && columnIndex === 0
 
-                      {hasDetail ? (
-                        <td className="users-table__detail-cell">
-                          <CreateButton
-                            variant="detail"
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation()
-                              handleToggleRow(rowKey)
-                            }}
-                            aria-expanded={isExpanded}
-                            aria-controls={accordionId}
-                            title={isExpanded ? 'Tutup detail' : 'Buka detail'}
+                        return (
+                          <td
+                            key={getColumnKey(column, columnIndex)}
+                            className={getColumnClassName(column, 'cell')}
+                            style={getColumnStyle(column, 'cell')}
                           >
-                            <span>{detail.buttonLabel ?? 'Detail'}</span>
-                            <ChevronDown
-                              size={16}
-                              aria-hidden="true"
-                              className={`users-table__detail-icon${
-                                isExpanded ? ' users-table__detail-icon--open' : ''
-                              }`}
-                            />
-                          </CreateButton>
+                            {showInlineToggle ? (
+                              <div className="users-table__cell-content users-table__cell-content--with-toggle">
+                                {renderDetailToggleButton(
+                                  rowKey,
+                                  isExpanded,
+                                  accordionId,
+                                  'users-table__cell-toggle-button',
+                                )}
+                                <div className="users-table__cell-value">{columnValue}</div>
+                              </div>
+                            ) : (
+                              columnValue
+                            )}
+                          </td>
+                        )
+                      })}
+
+                      {showDetailColumn ? (
+                        <td className="users-table__detail-cell">
+                          {renderDetailToggleButton(rowKey, isExpanded, accordionId)}
                         </td>
                       ) : null}
                     </tr>

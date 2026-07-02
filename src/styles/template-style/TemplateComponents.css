@@ -2909,6 +2909,24 @@ select {
   margin-left: 0.5rem;
 }
 
+.users-table__cell-content {
+  min-width: 0;
+}
+
+.users-table__cell-content--with-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.users-table__cell-toggle-button {
+  flex: 0 0 auto;
+}
+
+.users-table__cell-value {
+  min-width: 0;
+}
+
 .users-table__detail-button {
   min-height: 36px;
   display: inline-flex;
@@ -3834,6 +3852,8 @@ select {
 
 .detail-card-mobile__actions {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 0.65rem;
 }
@@ -5251,11 +5271,11 @@ select {
   }
 
   .detail-card-mobile__actions {
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .detail-card-mobile__action {
-    width: 100%;
+    width: auto;
     flex-basis: auto;
   }
 

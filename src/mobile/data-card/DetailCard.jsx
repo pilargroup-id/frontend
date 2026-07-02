@@ -1,7 +1,25 @@
 import { Fragment, isValidElement } from 'react'
 
+import CreateButton from '../../components/button/ButtonCreate.jsx'
+import ButtonDelete from '../../components/button/ButtonDelete.jsx'
+import ButtonEdit from '../../components/button/ButtonEdit.jsx'
+
 function joinClassNames(...classNames) {
   return classNames.filter(Boolean).join(' ')
+}
+
+function getActionButton(action) {
+  const actionKey = String(action.key ?? action.label ?? '').toLowerCase()
+
+  if (actionKey === 'edit') {
+    return ButtonEdit
+  }
+
+  if (actionKey === 'delete' || action.variant === 'danger') {
+    return ButtonDelete
+  }
+
+  return null
 }
 
 function normalizeList(items) {
@@ -226,23 +244,39 @@ export default function DetailCard({
 
       {actions.length > 0 ? (
         <div className="detail-card-mobile__panel detail-card-mobile__actions">
-          {actions.map((action, index) => (
-            <button
-              key={action.key ?? action.label ?? index}
-              type="button"
-              className={joinClassNames(
-                'detail-card-mobile__action',
-                action.variant ? `detail-card-mobile__action--${action.variant}` : '',
-              )}
-              disabled={action.disabled}
-              onClick={(event) => {
-                event.stopPropagation()
-                action.onClick?.(event)
-              }}
-            >
-              {action.label}
-            </button>
-          ))}
+          {actions.map((action, index) => {
+            const Icon = action.icon
+            const buttonLabel = action.label ?? action.key ?? 'Action'
+            const ActionButton = getActionButton(action)
+            const buttonKey = action.key ?? `${buttonLabel}-${index}`
+            const handleClick = (event) => {
+              event.stopPropagation()
+              action.onClick?.(event)
+            }
+
+            return ActionButton ? (
+              <ActionButton
+                key={buttonKey}
+                icon={Icon}
+                disabled={action.disabled}
+                label={buttonLabel}
+                onClick={handleClick}
+              />
+            ) : (
+              <CreateButton
+                key={buttonKey}
+                variant="icon"
+                tone={action.variant === 'danger' ? 'danger' : 'default'}
+                type="button"
+                disabled={action.disabled}
+                aria-label={buttonLabel}
+                title={buttonLabel}
+                onClick={handleClick}
+              >
+                {Icon ? <Icon size={16} aria-hidden="true" /> : buttonLabel}
+              </CreateButton>
+            )
+          })}
         </div>
       ) : null}
 

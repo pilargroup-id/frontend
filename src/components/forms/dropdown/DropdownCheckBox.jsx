@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 
 import { Check, ChevronDown } from '../../layoute/TemplateIcons.jsx'
 
@@ -13,26 +13,28 @@ function normalizeOption(option) {
   return option
 }
 
-function Dropdown({
+function DropdownCheckBox({
   id,
   label,
   helperText,
   error,
   options = [],
-  value,
-  placeholder = 'Pilih data',
+  value = [],
+  placeholder = 'Pilih beberapa data',
   disabled = false,
   required = false,
   className = '',
+  maxVisibleValues = 2,
   onChange,
 }) {
   const generatedId = useId()
-  const buttonId = id ?? `dropdown-${generatedId}`
+  const buttonId = id ?? `dropdown-checkbox-${generatedId}`
   const menuId = `${buttonId}-menu`
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
-  const normalizedOptions = options.map(normalizeOption)
-  const selectedOption = normalizedOptions.find((option) => option.value === value)
+  const normalizedOptions = useMemo(() => options.map(normalizeOption), [options])
+  const selectedValues = Array.isArray(value) ? value : []
+  const selectedOptions = normalizedOptions.filter((option) => selectedValues.includes(option.value))
   const message = typeof error === 'string' ? error : helperText
   const messageId = message ? `${buttonId}-message` : undefined
   const hasError = Boolean(error)
@@ -51,8 +53,33 @@ function Dropdown({
     }
   }, [])
 
+  const selectedLabel = selectedOptions
+    .slice(0, maxVisibleValues)
+    .map((option) => option.label)
+    .join(', ')
+  const hiddenSelectedCount = Math.max(0, selectedOptions.length - maxVisibleValues)
+
+  const updateSelectedValues = (nextValues) => {
+    const nextOptions = normalizedOptions.filter((option) => nextValues.includes(option.value))
+    onChange?.(nextValues, nextOptions)
+  }
+
+  const toggleOption = (option) => {
+    if (option.disabled) {
+      return
+    }
+
+    const exists = selectedValues.includes(option.value)
+    const nextValues = exists
+      ? selectedValues.filter((currentValue) => currentValue !== option.value)
+      : [...selectedValues, option.value]
+
+    updateSelectedValues(nextValues)
+  }
+
   const wrapperClassName = [
     'form-dropdown',
+    'form-dropdown--checkbox',
     open ? 'form-dropdown--open' : '',
     hasError ? 'form-dropdown--error' : '',
     disabled ? 'form-dropdown--disabled' : '',
@@ -82,33 +109,45 @@ function Dropdown({
         disabled={disabled}
         onClick={() => setOpen((currentValue) => !currentValue)}
       >
-        <span className={selectedOption ? 'form-dropdown__value' : 'form-dropdown__placeholder'}>
-          {selectedOption?.label ?? placeholder}
+        <span className={selectedOptions.length > 0 ? 'form-dropdown__value' : 'form-dropdown__placeholder'}>
+          {selectedOptions.length > 0
+            ? `${selectedLabel}${hiddenSelectedCount > 0 ? ` +${hiddenSelectedCount}` : ''}`
+            : placeholder}
         </span>
         <ChevronDown className="form-dropdown__chevron" size={18} />
       </button>
 
       {open ? (
-        <div className="form-dropdown__menu" id={menuId} role="listbox" aria-labelledby={buttonId}>
+        <div className="form-dropdown__menu" id={menuId} role="listbox" aria-labelledby={buttonId} aria-multiselectable="true">
+          {selectedOptions.length > 0 ? (
+            <button className="form-dropdown__clear-action" type="button" onClick={() => updateSelectedValues([])}>
+              Clear selected
+            </button>
+          ) : null}
+
           {normalizedOptions.length > 0 ? (
             normalizedOptions.map((option) => {
-              const selected = option.value === value
+              const selected = selectedValues.includes(option.value)
 
               return (
                 <button
-                  className={`form-dropdown__item${selected ? ' form-dropdown__item--selected' : ''}`}
+                  className={`form-dropdown__item form-dropdown__item--checkbox${
+                    selected ? ' form-dropdown__item--selected' : ''
+                  }`}
                   type="button"
                   role="option"
                   aria-selected={selected}
                   disabled={option.disabled}
                   key={option.value}
-                  onClick={() => {
-                    onChange?.(option.value, option)
-                    setOpen(false)
-                  }}
+                  onClick={() => toggleOption(option)}
                 >
-                  <span>{option.label}</span>
-                  {selected ? <Check size={16} /> : null}
+                  <span className="form-dropdown__checkbox-mark" aria-hidden="true">
+                    {selected ? <Check size={14} /> : null}
+                  </span>
+                  <span className="form-dropdown__item-copy">
+                    <span>{option.label}</span>
+                    {option.description ? <small>{option.description}</small> : null}
+                  </span>
                 </button>
               )
             })
@@ -127,4 +166,4 @@ function Dropdown({
   )
 }
 
-export default Dropdown
+export default DropdownCheckBox

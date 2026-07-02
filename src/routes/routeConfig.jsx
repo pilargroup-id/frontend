@@ -7,6 +7,8 @@ import DashboardPage from '../pages/DashboardPage.jsx';
 import TableTemplatePage from '../pages/TableTemplatePage.jsx';
 import Page1 from '../pages/page1/Page1.jsx';
 import Page2 from '../pages/page2/Page2.jsx';
+import IconsPage from '../pages/icons/IconsPage.jsx';
+import FormsPage from '../pages/forms/FormsPage.jsx';
 
 export default function RouteConfig() {
   return (
@@ -20,6 +22,9 @@ export default function RouteConfig() {
         <Route path="TableActions" element={<TableTemplatePage />} />
         <Route path="users" element={<TableTemplatePage />} />
         <Route path="Chart" element={<ChartTemplatePage />} />
+        <Route path="forms" element={<FormsPage />} />
+        <Route path="Forms" element={<FormsPage />} />
+        <Route path="icons" element={<IconsPage />} />
         <Route path="*" element={<DashboardPage />} />
       </Route>
     </Routes>

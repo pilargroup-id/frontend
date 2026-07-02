@@ -35,6 +35,18 @@ export const pageDetails = {
     value: '5',
     detail: 'Kumpulan chart yang siap dipakai untuk visualisasi data.',
   },
+  '/forms': {
+    title: 'Forms',
+    eyebrow: 'Component Template',
+    value: '9',
+    detail: 'Kumpulan komponen form yang siap dipakai untuk input data aplikasi.',
+  },
+  '/Forms': {
+    title: 'Forms',
+    eyebrow: 'Component Template',
+    value: '9',
+    detail: 'Kumpulan komponen form yang siap dipakai untuk input data aplikasi.',
+  },
   '/Reports/TeamPerformance': {
     title: 'Team Performance',
     eyebrow: 'Reports',

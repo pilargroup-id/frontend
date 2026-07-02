@@ -4,13 +4,18 @@ import {
   Chart01,
   Folder,
   TrendingUp,
+  MoreHorizontal,
+  Users01,
 } from '../../components/layoute/TemplateIcons.jsx'
 
 export const defaultNavigationPath = '/dashboard'
 
 export const implementedNavigationPaths = [
+  '/icons',
+  '/forms',
   '/Page1',
   '/Page2',
+  '/Page3',
   '/Table',
   '/TableActions',
   '/users',
@@ -19,31 +24,39 @@ export const implementedNavigationPaths = [
 
 export const primaryNavigationItems = [
   {
-    id: 'page1',
-    label: 'Page 1',
-    href: '/Page1',
-    icon: Folder,
+    id: 'icons',
+    label: 'Icons',
+    href: '/icons',
+    icon: MoreHorizontal,
   },
   {
-    id: 'page2',
-    label: 'Page 2',
-    href: '/Page2',
-    icon: Folder,
+    id: 'forms',
+    label: 'Forms',
+    href: '/forms',
+    icon: Users01,
   },
   {
     id: 'table',
     label: 'Table',
     icon: Table01,
+    icon: Folder,
     children: [
       {
-        id: 'table-data',
+        id: 'page1',
         label: 'Data Table',
-        href: '/Table',
+        href: '/Page1',
+        icon: Table01,
       },
       {
-        id: 'table-users',
+        id: 'page2',
         label: 'Data Table Actions',
-        href: '/TableActions',
+        href: '/Page2',
+        icon: TrendingUp,
+      },
+      {
+        id: 'page3',
+        label: 'Data Table Accordion',
+        href: '/Page3',
       },
     ],
   },

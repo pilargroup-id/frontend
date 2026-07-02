@@ -9,7 +9,6 @@ import {
 export const defaultNavigationPath = '/dashboard'
 
 export const implementedNavigationPaths = [
-  '/Menu1',
   '/Page1',
   '/Page2',
   '/Table',
@@ -19,12 +18,6 @@ export const implementedNavigationPaths = [
 ]
 
 export const primaryNavigationItems = [
-  {
-    id: 'menu1',
-    label: 'Menu 1',
-    href: '/Menu1',
-    icon: Folder,
-  },
   {
     id: 'page1',
     label: 'Page 1',

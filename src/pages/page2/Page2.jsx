@@ -47,11 +47,6 @@ function Page2(props) {
         <div className="users-table-card__actions" />
       </div>
 
-      <div className="dashboard-stack">
-        <p className="dashboard-stack__text">
-          {searchQuery ? `Search: ${searchQuery}` : 'Pages 1 Test'}
-        </p>
-      </div>
       <DataTableAction
         rows={filteredUsers}
         columns={userTableColumns}

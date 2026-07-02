@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import DataTable from '../../components/table/DataTable.jsx';
+import DataTablePage1 from '../../components/table/table-page1/DataTablePage1.jsx';
 import { userRows } from '../../dummy/dataTable.js';
 import { userTableColumns } from '../../dummy/userTableColumns.jsx';
 
@@ -46,7 +46,7 @@ function Page1(props) {
 
         <div className="users-table-card__actions" />
       </div>
-    <DataTable
+    <DataTablePage1
         rows={filteredUsers}
         columns={userTableColumns}
         getRowId={(user) => user.userId}

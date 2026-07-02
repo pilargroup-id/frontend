@@ -1,24 +1,11 @@
-import {
-  DataTableChips,
-  DataTableIdentity,
-  DataTableStatus,
-} from '../components/table/DataTable.jsx'
-
 export const userTableColumns = [
   {
     key: 'user',
     header: 'User',
-    render: (user) => (
-      <DataTableIdentity
-        title={user.name}
-        subtitle={user.username}
-        badge={
-          <DataTableStatus variant={user.statusKey} inline>
-            {user.status}
-          </DataTableStatus>
-        }
-      />
-    ),
+    accessor: 'name',
+    type: 'identity',
+    subtitleAccessor: 'username',
+    minWidth: 260,
   },
   {
     key: 'department',
@@ -31,8 +18,18 @@ export const userTableColumns = [
     accessor: 'role',
   },
   {
+    key: 'status',
+    header: 'Status',
+    accessor: 'status',
+    type: 'status',
+    variantAccessor: 'statusKey',
+    nowrap: true,
+  },
+  {
     key: 'apps',
     header: 'Apps',
-    render: (user) => <DataTableChips items={user.apps} />,
+    accessor: 'apps',
+    type: 'chips',
+    minWidth: 220,
   },
 ]

@@ -10,6 +10,7 @@ export {
 function DataTableAction({
   columns = [],
   actions = [],
+  mobileCard,
   actionColumnLabel = 'Action',
   actionColumnKey = 'action',
   actionCellClassName = 'users-table__action-cell',
@@ -60,6 +61,14 @@ function DataTableAction({
   return (
     <DataTable
       {...props}
+      mobileCard={
+        mobileCard === false
+          ? false
+          : {
+              ...(mobileCard ?? {}),
+              actions: mobileCard?.actions ?? actions,
+            }
+      }
       columns={actionColumn ? [...columns, actionColumn] : columns}
     />
   )

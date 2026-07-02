@@ -1,217 +1,261 @@
-import { useState } from 'react'
+import { Fragment, isValidElement } from 'react'
 
-export default function DetailCard() {
-  const [isEditing, setIsEditing] = useState(false)
+function joinClassNames(...classNames) {
+  return classNames.filter(Boolean).join(' ')
+}
 
-  // Sample data - bisa diganti dengan props
-  const cardData = {
-    id: 'TCK-252',
-    type: 'Software - Lain-lain',
-    status: { label: 'Void', variant: 'danger' },
-    title: 'testing',
-    rows: [
-      { label: 'Requester', value: 'fatih', variant: 'default' },
-      { label: 'Support', value: '-', variant: 'muted' },
-    ],
-    metadata: {
-      date: '30 Mar 2026',
-      time: '13:52 WIB',
-    },
+function normalizeList(items) {
+  if (!Array.isArray(items)) {
+    return []
   }
 
-  const statusColors = {
-    danger: {
-      bg: 'bg-red-50',
-      text: 'text-red-600',
-      dot: 'bg-red-500',
-    },
-    success: {
-      bg: 'bg-green-50',
-      text: 'text-green-600',
-      dot: 'bg-green-500',
-    },
-    warning: {
-      bg: 'bg-yellow-50',
-      text: 'text-yellow-600',
-      dot: 'bg-yellow-500',
-    },
-    default: {
-      bg: 'bg-blue-50',
-      text: 'text-blue-600',
-      dot: 'bg-blue-500',
-    },
+  return items
+    .map((item) => String(item ?? '').trim())
+    .filter(Boolean)
+}
+
+function renderCardValue(value, emptyLabel) {
+  if (isValidElement(value)) {
+    return value
   }
 
-  const statusStyle = statusColors[cardData.status.variant] || statusColors.default
+  if (Array.isArray(value)) {
+    const items = normalizeList(value)
+
+    if (items.length === 0) {
+      return <span className="detail-card-mobile__value detail-card-mobile__value--muted">{emptyLabel}</span>
+    }
+
+    return (
+      <div className="detail-card-mobile__chips">
+        {items.map((item, index) => (
+          <span className="detail-card-mobile__chip" key={`${item}-${index}`}>
+            {item}
+          </span>
+        ))}
+      </div>
+    )
+  }
+
+  if (value === null || value === undefined || value === '') {
+    return <span className="detail-card-mobile__value detail-card-mobile__value--muted">{emptyLabel}</span>
+  }
+
+  return <span className="detail-card-mobile__value">{String(value)}</span>
+}
+
+function renderMetadataValue(item) {
+  if (isValidElement(item.value)) {
+    return item.value
+  }
+
+  return <span>{String(item.value)}</span>
+}
+
+function DetailCardField({ field, emptyLabel = '-' }) {
+  return (
+    <div
+      className={joinClassNames(
+        'detail-card-mobile__field',
+        field.kind === 'chips' ? 'detail-card-mobile__field--stacked' : '',
+      )}
+    >
+      <dt className="detail-card-mobile__field-label">{field.label}</dt>
+      <dd className="detail-card-mobile__field-value">{renderCardValue(field.value, emptyLabel)}</dd>
+    </div>
+  )
+}
+
+export default function DetailCard({
+  header = {},
+  title = '',
+  subtitle = '',
+  description = '',
+  rows = [],
+  metadata = {},
+  sections = [],
+  expandableTitle = 'Detail',
+  expandableContent = null,
+  actions = [],
+  className = '',
+  emptyLabel = '-',
+  defaultExpanded = false,
+  surface = 'card',
+  onClick,
+}) {
+  const metadataItems = Array.isArray(metadata.items)
+    ? metadata.items.filter((item) => item?.value !== undefined && item?.value !== null && item?.value !== '')
+    : [
+        metadata.date
+          ? {
+              label: metadata.dateLabel ?? 'Tanggal',
+              value: metadata.date,
+            }
+          : null,
+        metadata.time
+          ? {
+              label: metadata.timeLabel ?? 'Waktu',
+              value: metadata.time,
+            }
+          : null,
+      ].filter(Boolean)
+  const hasExpandableContent = Boolean(expandableContent) || sections.length > 0
+  const isInteractive = typeof onClick === 'function'
+  const rootClassName = joinClassNames(
+    'detail-card-mobile',
+    surface === 'embedded' ? 'detail-card-mobile--embedded' : '',
+    isInteractive ? 'detail-card-mobile--interactive' : '',
+    className,
+  )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="mx-auto max-w-md">
-        {/* Main Card */}
-        <div className="overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-200">
-          {/* Header Section */}
-          <div className="border-b border-slate-200 px-4 py-3 sm:px-6">
-            <div className="mb-3 flex items-start justify-between gap-2">
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold text-slate-900">
-                  {cardData.id}
-                </h2>
-                <p className="mt-1 text-sm text-slate-500">{cardData.type}</p>
-              </div>
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 active:bg-slate-300"
-              >
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                Edit
-              </button>
-            </div>
+    <article
+      className={rootClassName}
+      onClick={isInteractive ? onClick : undefined}
+      onKeyDown={
+        isInteractive
+          ? (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') {
+                return
+              }
 
-            {/* Status Badge */}
-            <div className="flex items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1.5 rounded-full ${statusStyle.bg} px-2.5 py-1 text-xs font-medium ${statusStyle.text}`}
-              >
-                <span className={`h-1.5 w-1.5 rounded-full ${statusStyle.dot}`} />
-                {cardData.status.label}
-              </span>
-            </div>
+              event.preventDefault()
+              onClick()
+            }
+          : undefined
+      }
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+    >
+      {(header.id || header.type || header.status?.label) && (
+        <div className="detail-card-mobile__header">
+          <div className="detail-card-mobile__header-copy">
+            {header.id ? <p className="detail-card-mobile__eyebrow">{header.id}</p> : null}
+            {header.type ? <p className="detail-card-mobile__type">{header.type}</p> : null}
           </div>
 
-          {/* Title Section */}
-          <div className="border-b border-slate-200 px-4 py-4 sm:px-6">
-            <h3 className="text-base font-medium text-slate-900">
-              {cardData.title}
-            </h3>
-          </div>
+          {header.status?.label ? (
+            <span
+              className={joinClassNames(
+                'detail-card-mobile__status',
+                header.status?.variant
+                  ? `detail-card-mobile__status--${header.status.variant}`
+                  : 'detail-card-mobile__status--default',
+              )}
+            >
+              <span className="detail-card-mobile__status-dot" aria-hidden="true" />
+              {header.status.label}
+            </span>
+          ) : null}
+        </div>
+      )}
 
-          {/* Content Grid */}
-          <div className="grid grid-cols-2 divide-x divide-slate-200">
-            {cardData.rows.map((row, index) => (
+      {(title || subtitle || description) && (
+        <div className="detail-card-mobile__hero">
+          {title ? <h3 className="detail-card-mobile__title">{title}</h3> : null}
+          {subtitle ? <p className="detail-card-mobile__subtitle">{subtitle}</p> : null}
+          {description ? <p className="detail-card-mobile__description">{description}</p> : null}
+        </div>
+      )}
+
+      {rows.length > 0 ? (
+        <div className="detail-card-mobile__rows">
+          {rows.map((row, index) => (
+            <section className="detail-card-mobile__row" key={row.key ?? `row-${index}`}>
+              <p className="detail-card-mobile__row-label">{row.label}</p>
               <div
-                key={index}
-                className="px-4 py-4 sm:px-6"
+                className={joinClassNames(
+                  'detail-card-mobile__row-value',
+                  row.variant === 'muted' ? 'detail-card-mobile__row-value--muted' : '',
+                )}
               >
-                <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                  <svg
-                    className="h-3.5 w-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                {renderCardValue(row.value, emptyLabel)}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : null}
+
+      {hasExpandableContent ? (
+        <details
+          className="detail-card-mobile__details"
+          open={defaultExpanded}
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <summary className="detail-card-mobile__summary">
+            <span>{expandableTitle}</span>
+            <span className="detail-card-mobile__summary-icon" aria-hidden="true">
+              v
+            </span>
+          </summary>
+
+          <div className="detail-card-mobile__details-content">
+            {expandableContent ? (
+              <div className="detail-card-mobile__expandable-copy">{expandableContent}</div>
+            ) : null}
+
+            {sections.length > 0 ? (
+              <div className="detail-card-mobile__sections">
+                {sections.map((section, sectionIndex) => (
+                  <section
+                    className={joinClassNames(
+                      'detail-card-mobile__section',
+                      section.wide ? 'detail-card-mobile__section--wide' : '',
+                    )}
+                    key={section.key ?? `section-${sectionIndex}`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  {row.label}
-                </p>
-                <p
-                  className={`mt-2 text-sm font-semibold ${
-                    row.variant === 'muted'
-                      ? 'text-slate-400'
-                      : 'text-slate-900'
-                  }`}
-                >
-                  {row.value}
-                </p>
-              </div>
-            ))}
-          </div>
+                    {section.title ? (
+                      <p className="detail-card-mobile__section-title">{section.title}</p>
+                    ) : null}
 
-          {/* Metadata Footer */}
-          <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 sm:px-6">
-            <div className="flex items-center justify-between text-xs text-slate-600">
-              <div className="flex items-center gap-1.5">
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                {cardData.metadata.date}
+                    <dl className="detail-card-mobile__fields">
+                      {(section.fields ?? []).map((field, fieldIndex) => (
+                        <Fragment key={field.key ?? `field-${fieldIndex}`}>
+                          <DetailCardField field={field} emptyLabel={emptyLabel} />
+                        </Fragment>
+                      ))}
+                    </dl>
+                  </section>
+                ))}
               </div>
-              <div className="flex items-center gap-1.5">
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                {cardData.metadata.time}
-              </div>
-            </div>
+            ) : null}
           </div>
+        </details>
+      ) : null}
+
+      {actions.length > 0 ? (
+        <div className="detail-card-mobile__actions">
+          {actions.map((action, index) => (
+            <button
+              key={action.key ?? action.label ?? index}
+              type="button"
+              className={joinClassNames(
+                'detail-card-mobile__action',
+                action.variant ? `detail-card-mobile__action--${action.variant}` : '',
+              )}
+              disabled={action.disabled}
+              onClick={(event) => {
+                event.stopPropagation()
+                action.onClick?.(event)
+              }}
+            >
+              {action.label}
+            </button>
+          ))}
         </div>
+      ) : null}
 
-        {/* Edit Mode Notice */}
-        {isEditing && (
-          <div className="mt-4 rounded-lg bg-blue-50 p-4 text-sm text-blue-800 ring-1 ring-blue-200">
-            Mode edit diaktifkan. Silakan edit informasi di atas.
-          </div>
-        )}
-
-        {/* Expandable Content Example */}
-        <div className="mt-6 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-200">
-          <details className="group">
-            <summary className="flex cursor-pointer items-center justify-between px-4 py-4 sm:px-6 hover:bg-slate-50">
-              <span className="font-medium text-slate-900">Informasi Tambahan</span>
-              <svg
-                className="h-5 w-5 transition-transform group-open:rotate-180"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                />
-              </svg>
-            </summary>
-            <div className="border-t border-slate-200 px-4 py-4 text-sm text-slate-600 sm:px-6">
-              <p className="mb-3">
-                <span className="font-medium text-slate-900">Dibuat:</span> 28 Mar 2026 10:30 WIB
-              </p>
-              <p className="mb-3">
-                <span className="font-medium text-slate-900">Diubah:</span> 30 Mar 2026 13:52 WIB
-              </p>
-              <p>
-                <span className="font-medium text-slate-900">Oleh:</span> System Admin
-              </p>
+      {metadataItems.length > 0 ? (
+        <div className="detail-card-mobile__meta">
+          {metadataItems.map((item, index) => (
+            <div className="detail-card-mobile__meta-item" key={item.key ?? item.label ?? index}>
+              {item.label ? <span className="detail-card-mobile__meta-label">{item.label}</span> : null}
+              <span className="detail-card-mobile__meta-value">{renderMetadataValue(item)}</span>
             </div>
-          </details>
+          ))}
         </div>
-      </div>
-    </div>
+      ) : null}
+    </article>
   )
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { ChevronLeft, ChevronRight, XClose } from './TemplateIcons.jsx'
+import { ChevronLeft, ChevronRight } from './TemplateIcons.jsx'
 import {
   defaultNavigationPath,
   implementedNavigationPaths,
@@ -255,15 +255,6 @@ function Sidebar({
         ) : (
           <ChevronLeft className="toggle-icon" size={16} />
         )}
-      </button>
-
-      <button
-        type="button"
-        className="sidebar-mobile-dismiss"
-        aria-label="Close Sidebar"
-        onClick={onCloseMobile}
-      >
-        <XClose size={18} />
       </button>
 
       <div className="sidebar-logo">

@@ -286,6 +286,17 @@ function Header({
 
           {hasSearch || hasNotification || onRefresh ? (
             <div className="header-toolbar">
+              {showMenuButton ? (
+                <button
+                  type="button"
+                  className="header-menu-button header-menu-button--toolbar"
+                  aria-label="Open sidebar"
+                  onClick={onMenuToggle}
+                >
+                  <Menu01 size={20} />
+                </button>
+              ) : null}
+
               {hasSearch ? (
                 <label
                   className="header-search header-search--compact"

@@ -2,6 +2,7 @@ import { Fragment, isValidElement, useState } from 'react'
 
 import CreateButton from '../button/ButtonCreate.jsx'
 import { ChevronDown } from '../layoute/TemplateIcons.jsx'
+import DetailCard from '../../mobile/data-card/DetailCard.jsx'
 
 function getInitials(value = '') {
   return String(value)
@@ -302,6 +303,284 @@ function getDetailSections(detail, row, index) {
   return detail.sections ?? []
 }
 
+function resolveResponsiveValue(value, row, index) {
+  if (typeof value === 'function') {
+    return value(row, index)
+  }
+
+  if (typeof value === 'string') {
+    const pathValue = getPathValue(row, value)
+
+    return pathValue === undefined ? value : pathValue
+  }
+
+  return value
+}
+
+function getIdentityColumnContent(column, row, index) {
+  const value = getColumnValue(column, row, index)
+
+  return {
+    title:
+      resolveTemplateValue(column.title, row, index) ??
+      getColumnOptionValue(column.titleAccessor, row, index) ??
+      value,
+    subtitle:
+      resolveTemplateValue(column.subtitle, row, index) ??
+      getColumnOptionValue(column.subtitleAccessor, row, index),
+    badge:
+      resolveTemplateValue(column.badge, row, index) ??
+      getColumnOptionValue(column.badgeAccessor, row, index),
+  }
+}
+
+function getColumnPlainValue(column, row, index) {
+  const value = getColumnValue(column, row, index)
+
+  if (isValidElement(value)) {
+    return value
+  }
+
+  if (column.type === 'identity') {
+    return getIdentityColumnContent(column, row, index).title
+  }
+
+  if (column.type === 'chips') {
+    return Array.isArray(value) ? value : normalizeList(String(value ?? '').split(','))
+  }
+
+  return formatColumnText(value, column, row, index)
+}
+
+function getStatusColumnContent(column, row, index) {
+  const value = getColumnValue(column, row, index)
+
+  return {
+    label: formatColumnText(value, column, row, index),
+    variant:
+      resolveTemplateValue(column.variant, row, index) ??
+      getColumnOptionValue(column.variantAccessor, row, index) ??
+      String(value ?? 'active').toLowerCase(),
+  }
+}
+
+function resolveMobileCardRows(rowsConfig, row, index, defaultRows) {
+  if (typeof rowsConfig === 'function') {
+    return rowsConfig(row, index) ?? defaultRows
+  }
+
+  if (!Array.isArray(rowsConfig)) {
+    return defaultRows
+  }
+
+  return rowsConfig
+    .filter((field) => !(field?.hidden?.(row, index) ?? field?.hidden))
+    .map((field, fieldIndex) => ({
+      key: field.key ?? `${field.label ?? 'field'}-${fieldIndex}`,
+      label: resolveResponsiveValue(field.label, row, index),
+      value:
+        typeof field.render === 'function'
+          ? field.render(row, index)
+          : resolveResponsiveValue(field.value, row, index),
+      variant: resolveResponsiveValue(field.variant, row, index),
+    }))
+}
+
+function resolveMobileCardSections(sectionsConfig, row, index, detail) {
+  const sourceSections =
+    sectionsConfig === true || sectionsConfig === undefined
+      ? getDetailSections(detail, row, index)
+      : typeof sectionsConfig === 'function'
+        ? sectionsConfig(row, index) ?? []
+        : Array.isArray(sectionsConfig)
+          ? sectionsConfig
+          : []
+
+  return sourceSections.map((section, sectionIndex) => ({
+    key: section.key ?? section.title ?? `section-${sectionIndex}`,
+    title: resolveResponsiveValue(section.title, row, index),
+    wide: Boolean(resolveResponsiveValue(section.wide, row, index)),
+    fields: (section.fields ?? [])
+      .filter((field) => !(field?.hidden?.(row, index) ?? field?.hidden))
+      .map((field, fieldIndex) => ({
+        key: field.key ?? field.label ?? `field-${fieldIndex}`,
+        label: resolveResponsiveValue(field.label, row, index),
+        value:
+          typeof field.render === 'function'
+            ? field.render(row, index)
+            : resolveResponsiveValue(field.value, row, index),
+        kind: resolveResponsiveValue(field.kind, row, index),
+      })),
+  }))
+}
+
+function resolveMobileCardMetadata(metadataConfig, row, index) {
+  if (typeof metadataConfig === 'function') {
+    return metadataConfig(row, index) ?? {}
+  }
+
+  if (!metadataConfig || typeof metadataConfig !== 'object') {
+    return {}
+  }
+
+  const items = Array.isArray(metadataConfig.items)
+    ? metadataConfig.items
+        .filter((item) => !(item?.hidden?.(row, index) ?? item?.hidden))
+        .map((item, itemIndex) => ({
+          key: item.key ?? item.label ?? `meta-${itemIndex}`,
+          label: resolveResponsiveValue(item.label, row, index),
+          value:
+            typeof item.render === 'function'
+              ? item.render(row, index)
+              : resolveResponsiveValue(item.value, row, index),
+        }))
+    : undefined
+
+  return {
+    date: resolveResponsiveValue(metadataConfig.date, row, index),
+    dateLabel: resolveResponsiveValue(metadataConfig.dateLabel, row, index),
+    time: resolveResponsiveValue(metadataConfig.time, row, index),
+    timeLabel: resolveResponsiveValue(metadataConfig.timeLabel, row, index),
+    items,
+  }
+}
+
+function resolveMobileCardActions(actionsConfig, row, index, defaultActions) {
+  const sourceActions =
+    typeof actionsConfig === 'function'
+      ? actionsConfig(row, index) ?? defaultActions
+      : Array.isArray(actionsConfig)
+        ? actionsConfig
+        : defaultActions
+
+  return sourceActions
+    .filter((action) => !(action?.hidden?.(row, index) ?? action?.hidden))
+    .map((action) => ({
+      key: action.key ?? action.label,
+      label: resolveResponsiveValue(action.label ?? action.key ?? 'Action', row, index),
+      variant: resolveResponsiveValue(action.variant, row, index),
+      disabled: action.disabled?.(row, index) ?? action.disabled,
+      onClick: (event) => action.onClick?.(row, index, event),
+    }))
+}
+
+function isActionColumn(column) {
+  return (
+    column.type === 'action' ||
+    String(column.headerClassName ?? '').includes('users-table__action-header') ||
+    String(column.cellClassName ?? '').includes('users-table__action-cell')
+  )
+}
+
+function getDefaultMobileTitleColumn(columns) {
+  return columns.find(
+    (column) => !column.mobileHidden && column.type !== 'status' && !isActionColumn(column),
+  )
+}
+
+function getDefaultMobileCardSurface(mobileCard) {
+  if (mobileCard && typeof mobileCard === 'object' && typeof mobileCard.surface === 'string') {
+    return mobileCard.surface
+  }
+
+  return 'embedded'
+}
+
+function getDefaultMobileCardRows(columns, row, index, titleColumn) {
+  return columns
+    .filter(
+      (column) =>
+        !column.mobileHidden &&
+        column.type !== 'identity' &&
+        column.type !== 'status' &&
+        !isActionColumn(column) &&
+        column !== titleColumn,
+    )
+    .map((column, columnIndex) => ({
+      key: column.key ?? `mobile-row-${columnIndex}`,
+      label: column.mobileLabel ?? column.header,
+      value: getColumnPlainValue(column, row, index),
+      variant: column.mobileVariant,
+    }))
+}
+
+function buildMobileCardProps({
+  mobileCard,
+  row,
+  index,
+  rowKey,
+  columns,
+  detail,
+  actions,
+  onRowClick,
+  defaultSurface,
+}) {
+  const mobileCardConfig =
+    mobileCard && typeof mobileCard === 'object' ? mobileCard : {}
+  const identityColumn = columns.find((column) => column.type === 'identity')
+  const statusColumn = columns.find((column) => column.type === 'status')
+  const titleColumn = identityColumn ?? getDefaultMobileTitleColumn(columns)
+  const identityContent = identityColumn ? getIdentityColumnContent(identityColumn, row, index) : {}
+  const defaultStatus = statusColumn ? getStatusColumnContent(statusColumn, row, index) : null
+  const defaultRows = getDefaultMobileCardRows(columns, row, index, titleColumn)
+  const headerConfig = mobileCardConfig.header ?? {}
+  const resolvedTitle =
+    resolveResponsiveValue(mobileCardConfig.title, row, index) ??
+    identityContent.title ??
+    row.name ??
+    row.title ??
+    (titleColumn ? getColumnPlainValue(titleColumn, row, index) : null) ??
+    rowKey
+  const resolvedOnClick =
+    typeof mobileCardConfig.onClick === 'function'
+      ? () => mobileCardConfig.onClick(row, index)
+      : typeof onRowClick === 'function'
+        ? () => onRowClick(row, index)
+        : undefined
+
+  return {
+    header: {
+      id: resolveResponsiveValue(headerConfig.id, row, index) ?? rowKey,
+      type: resolveResponsiveValue(headerConfig.type, row, index),
+      status: {
+        label:
+          resolveResponsiveValue(headerConfig.status?.label, row, index) ??
+          defaultStatus?.label,
+        variant:
+          resolveResponsiveValue(headerConfig.status?.variant, row, index) ??
+          defaultStatus?.variant,
+      },
+    },
+    title: resolvedTitle,
+    subtitle:
+      resolveResponsiveValue(mobileCardConfig.subtitle, row, index) ?? identityContent.subtitle,
+    description:
+      resolveResponsiveValue(mobileCardConfig.description, row, index) ??
+      resolveTemplateValue(detail?.description, row, index),
+    rows: resolveMobileCardRows(mobileCardConfig.rows, row, index, defaultRows),
+    metadata: resolveMobileCardMetadata(mobileCardConfig.metadata, row, index),
+    sections: resolveMobileCardSections(mobileCardConfig.sections, row, index, detail),
+    expandableTitle:
+      resolveResponsiveValue(mobileCardConfig.expandableTitle, row, index) ??
+      detail?.columnLabel ??
+      'Detail',
+    expandableContent:
+      resolveResponsiveValue(mobileCardConfig.expandableContent, row, index) ??
+      (typeof detail?.render === 'function' ? detail.render(row, index) : null),
+    actions: resolveMobileCardActions(
+      mobileCardConfig.actions,
+      row,
+      index,
+      actions,
+    ),
+    className: resolveResponsiveValue(mobileCardConfig.className, row, index) ?? '',
+    defaultExpanded:
+      resolveResponsiveValue(mobileCardConfig.defaultExpanded, row, index) ?? false,
+    surface: resolveResponsiveValue(mobileCardConfig.surface, row, index) ?? defaultSurface,
+    onClick: resolvedOnClick,
+  }
+}
+
 export function DataTableStatus({
   children,
   variant = 'active',
@@ -361,6 +640,7 @@ function DataTable({
   getRowId = getDefaultRowId,
   detail = null,
   actions = [],
+  mobileCard,
   pagination = true,
   tableLabel = 'Data table',
   tableMessage = '',
@@ -376,6 +656,8 @@ function DataTable({
     getDefaultPaginationConfig(pagination).pageSize ?? 5,
   )
   const hasDetail = Boolean(detail)
+  const hasMobileCard = mobileCard !== false
+  const mobileCardSurface = getDefaultMobileCardSurface(mobileCard)
   const hasPagination = pagination !== false && pagination !== null
   const paginationConfig = getDefaultPaginationConfig(pagination)
   const isControlledPagination =
@@ -486,7 +768,12 @@ function DataTable({
   }
 
   return (
-    <div className="users-table-layout">
+    <div
+      className={joinClassNames(
+        'users-table-layout',
+        hasMobileCard ? 'users-table-layout--with-mobile' : '',
+      )}
+    >
       <div className={['users-table-wrapper', className].filter(Boolean).join(' ')}>
         <table className="users-table" aria-label={tableLabel}>
           <thead>
@@ -693,6 +980,38 @@ function DataTable({
           </tbody>
         </table>
       </div>
+
+      {hasMobileCard ? (
+        <div className="users-table-mobile">
+          {displayRows.length > 0 ? (
+            <div
+              className={joinClassNames(
+                'users-table-mobile__cards',
+                mobileCardSurface === 'embedded' ? 'users-table-mobile__cards--embedded' : '',
+              )}
+            >
+              {displayRows.map((row, index) => {
+                const rowKey = String(getRowId(row, index))
+                const cardProps = buildMobileCardProps({
+                  mobileCard,
+                  row,
+                  index,
+                  rowKey,
+                  columns,
+                  detail,
+                  actions,
+                  onRowClick,
+                  defaultSurface: mobileCardSurface,
+                })
+
+                return <DetailCard key={rowKey} {...cardProps} />
+              })}
+            </div>
+          ) : (
+            <div className="users-table__empty">{resolvedEmptyMessage}</div>
+          )}
+        </div>
+      ) : null}
 
       {hasPagination ? (
         <div className="users-table-pagination">

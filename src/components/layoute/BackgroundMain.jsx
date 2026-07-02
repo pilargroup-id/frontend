@@ -1,6 +1,6 @@
 function BackgroundMain() {
   return (
-    <div aria-hidden="true" style={styles.root}>
+    <div aria-hidden="true" className="background-main" style={styles.root}>
       <div style={styles.texture} />
       <div style={styles.topCurve} />
       <div style={styles.topRing} />

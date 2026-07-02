@@ -3501,10 +3501,13 @@ select {
 }
 
 .detail-card-mobile {
-  overflow: hidden;
+  display: grid;
+  gap: 0.85rem;
   border: 1px solid rgba(26, 42, 87, 0.08);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.94);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 250, 253, 0.94));
+  padding: 0.8rem;
   box-shadow: 0 16px 34px rgba(16, 28, 54, 0.08);
 }
 
@@ -3512,6 +3515,7 @@ select {
   border: none;
   border-radius: 0;
   background: transparent;
+  padding: 0;
   box-shadow: none;
 }
 
@@ -3530,6 +3534,14 @@ select {
     0 16px 34px rgba(16, 28, 54, 0.12);
 }
 
+.detail-card-mobile__panel {
+  overflow: hidden;
+  border: 1px solid rgba(26, 42, 87, 0.09);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(16, 28, 54, 0.06);
+}
+
 .detail-card-mobile__header,
 .detail-card-mobile__hero,
 .detail-card-mobile__details-content,
@@ -3543,7 +3555,6 @@ select {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.85rem;
-  border-bottom: 1px solid rgba(26, 42, 87, 0.08);
 }
 
 .detail-card-mobile__header-copy {
@@ -3637,7 +3648,6 @@ select {
 .detail-card-mobile__rows {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-top: 1px solid rgba(26, 42, 87, 0.08);
 }
 
 .detail-card-mobile__row {
@@ -3707,7 +3717,7 @@ select {
 }
 
 .detail-card-mobile__details {
-  border-top: 1px solid rgba(26, 42, 87, 0.08);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .detail-card-mobile__summary {
@@ -3784,7 +3794,6 @@ select {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
-  border-top: 1px solid rgba(26, 42, 87, 0.08);
 }
 
 .detail-card-mobile__action {
@@ -3834,8 +3843,7 @@ select {
 .detail-card-mobile__meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  border-top: 1px solid rgba(26, 42, 87, 0.08);
+  gap: 0;
   background: rgba(244, 247, 251, 0.68);
 }
 
@@ -3843,6 +3851,14 @@ select {
   display: grid;
   gap: 0.2rem;
   min-width: 0;
+  padding-right: 0.75rem;
+  border-right: 1px solid rgba(26, 42, 87, 0.08);
+}
+
+.detail-card-mobile__meta-item:nth-child(2n) {
+  padding-right: 0;
+  padding-left: 0.75rem;
+  border-right: none;
 }
 
 .detail-card-mobile__meta-value {
@@ -5148,6 +5164,19 @@ select {
 
   .detail-card-mobile__row {
     border-right: none;
+  }
+
+  .detail-card-mobile__meta-item,
+  .detail-card-mobile__meta-item:nth-child(2n) {
+    padding-right: 0;
+    padding-left: 0;
+    border-right: none;
+  }
+
+  .detail-card-mobile__meta-item + .detail-card-mobile__meta-item {
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+    border-top: 1px solid rgba(26, 42, 87, 0.08);
   }
 
   .detail-card-mobile__actions {

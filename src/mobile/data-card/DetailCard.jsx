@@ -128,7 +128,7 @@ export default function DetailCard({
       tabIndex={isInteractive ? 0 : undefined}
     >
       {(header.id || header.type || header.status?.label) && (
-        <div className="detail-card-mobile__header">
+        <div className="detail-card-mobile__panel detail-card-mobile__header">
           <div className="detail-card-mobile__header-copy">
             {header.id ? <p className="detail-card-mobile__eyebrow">{header.id}</p> : null}
             {header.type ? <p className="detail-card-mobile__type">{header.type}</p> : null}
@@ -151,7 +151,7 @@ export default function DetailCard({
       )}
 
       {(title || subtitle || description) && (
-        <div className="detail-card-mobile__hero">
+        <div className="detail-card-mobile__panel detail-card-mobile__hero">
           {title ? <h3 className="detail-card-mobile__title">{title}</h3> : null}
           {subtitle ? <p className="detail-card-mobile__subtitle">{subtitle}</p> : null}
           {description ? <p className="detail-card-mobile__description">{description}</p> : null}
@@ -159,7 +159,7 @@ export default function DetailCard({
       )}
 
       {rows.length > 0 ? (
-        <div className="detail-card-mobile__rows">
+        <div className="detail-card-mobile__panel detail-card-mobile__rows">
           {rows.map((row, index) => (
             <section className="detail-card-mobile__row" key={row.key ?? `row-${index}`}>
               <p className="detail-card-mobile__row-label">{row.label}</p>
@@ -178,7 +178,7 @@ export default function DetailCard({
 
       {hasExpandableContent ? (
         <details
-          className="detail-card-mobile__details"
+          className="detail-card-mobile__panel detail-card-mobile__details"
           open={defaultExpanded}
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
@@ -225,7 +225,7 @@ export default function DetailCard({
       ) : null}
 
       {actions.length > 0 ? (
-        <div className="detail-card-mobile__actions">
+        <div className="detail-card-mobile__panel detail-card-mobile__actions">
           {actions.map((action, index) => (
             <button
               key={action.key ?? action.label ?? index}
@@ -247,7 +247,7 @@ export default function DetailCard({
       ) : null}
 
       {metadataItems.length > 0 ? (
-        <div className="detail-card-mobile__meta">
+        <div className="detail-card-mobile__panel detail-card-mobile__meta">
           {metadataItems.map((item, index) => (
             <div className="detail-card-mobile__meta-item" key={item.key ?? item.label ?? index}>
               {item.label ? <span className="detail-card-mobile__meta-label">{item.label}</span> : null}

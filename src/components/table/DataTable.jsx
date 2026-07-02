@@ -1,6 +1,6 @@
 import { Fragment, isValidElement, useState } from 'react'
 
-import CreateButton from '../button/CreateButton.jsx'
+import CreateButton from '../button/ButtonCreate.jsx'
 import { ChevronDown } from '../layoute/TemplateIcons.jsx'
 
 function getInitials(value = '') {
@@ -486,7 +486,7 @@ function DataTable({
   }
 
   return (
-    <>
+    <div className="users-table-layout">
       <div className={['users-table-wrapper', className].filter(Boolean).join(' ')}>
         <table className="users-table" aria-label={tableLabel}>
           <thead>
@@ -701,7 +701,9 @@ function DataTable({
 
             {canChangePageSize ? (
               <label className="users-table-pagination__page-size">
-                <span>{paginationConfig.pageSizeLabel ?? 'Tampilkan'}</span>
+                <span className="users-table-pagination__page-size-label">
+                  {paginationConfig.pageSizeLabel ?? 'Rows per page'}
+                </span>
                 <select
                   className="users-table-pagination__select"
                   value={currentPageSize}
@@ -714,7 +716,6 @@ function DataTable({
                     </option>
                   ))}
                 </select>
-                <span>{paginationConfig.pageSizeSuffix ?? 'baris'}</span>
               </label>
             ) : null}
           </div>
@@ -766,7 +767,7 @@ function DataTable({
           </div>
         </div>
       ) : null}
-    </>
+    </div>
   )
 }
 

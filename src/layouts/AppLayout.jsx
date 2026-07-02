@@ -76,8 +76,8 @@ function AppLayout({
           ]}
           searchProps={{
             value: searchQuery,
-            placeholder: isSearchTable ? 'Cari data table...' : 'Cari tiket...',
-            ariaLabel: isSearchTable ? 'Cari data table' : 'Cari tiket legal',
+            placeholder: isSearchTable ? 'Cari data table...' : 'Search Data...',
+            ariaLabel: isSearchTable ? 'Cari data table' : 'Search legal tickets',
             onChange: (event) => handleSearchChange(event.target.value),
           }}
           notificationProps={{

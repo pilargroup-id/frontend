@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import ButtonCreatePage1 from '../../components/button/button-page1/ButtonCreatePage1.jsx';
 import DataTablePage1 from '../../components/table/table-page1/DataTablePage1.jsx';
 import { userRows } from '../../dummy/dataTable.js';
 import { userTableColumns } from '../../dummy/userTableColumns.jsx';
@@ -44,9 +45,14 @@ function Page1(props) {
           <h1 className="dashboard-panel__title">{pageTitle}</h1>
         </div>
 
-        <div className="users-table-card__actions" />
+        <div className="users-table-card__actions">
+          <ButtonCreatePage1 variant="create">
+            Create
+          </ButtonCreatePage1>
+        </div>
       </div>
-    <DataTablePage1
+
+      <DataTablePage1
         rows={filteredUsers}
         columns={userTableColumns}
         getRowId={(user) => user.userId}

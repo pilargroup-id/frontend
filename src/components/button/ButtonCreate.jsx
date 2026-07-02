@@ -1,11 +1,12 @@
 const buttonClassNames = {
+  create: 'dashboard-popup__button dashboard-popup__button--primary',
   detail: 'users-table__detail-button',
   accordion: 'users-table__accordion-button',
   icon: 'users-table__icon-button',
   pagination: 'users-table-pagination__button',
 }
 
-function CreateButton({
+function ButtonCreate({
   children,
   className = '',
   variant = 'accordion',
@@ -31,4 +32,4 @@ function CreateButton({
   )
 }
 
-export default CreateButton
+export default ButtonCreate

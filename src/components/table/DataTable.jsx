@@ -483,11 +483,32 @@ function getDefaultMobileCardSurface(mobileCard) {
     return mobileCard.surface
   }
 
-  return 'embedded'
+  return 'card'
+}
+
+function getColumnDataKeys(column) {
+  return [
+    column.accessor,
+    column.key,
+    column.titleAccessor,
+    column.subtitleAccessor,
+    column.badgeAccessor,
+    column.initialsAccessor,
+    column.variantAccessor,
+  ].filter((key) => typeof key === 'string' && key.length > 0)
+}
+
+function formatMobileDataLabel(key) {
+  return String(key)
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\bid\b/gi, 'ID')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
 function getDefaultMobileCardRows(columns, row, index, titleColumn) {
-  return columns
+  const representedKeys = new Set(columns.flatMap(getColumnDataKeys))
+  const columnRows = columns
     .filter(
       (column) =>
         !column.mobileHidden &&
@@ -502,6 +523,20 @@ function getDefaultMobileCardRows(columns, row, index, titleColumn) {
       value: getColumnPlainValue(column, row, index),
       variant: column.mobileVariant,
     }))
+
+  if (!row || typeof row !== 'object' || Array.isArray(row)) {
+    return columnRows
+  }
+
+  const extraRows = Object.entries(row)
+    .filter(([key, value]) => !representedKeys.has(key) && value !== undefined)
+    .map(([key, value]) => ({
+      key: `data-${key}`,
+      label: formatMobileDataLabel(key),
+      value,
+    }))
+
+  return [...columnRows, ...extraRows]
 }
 
 function buildMobileCardProps({

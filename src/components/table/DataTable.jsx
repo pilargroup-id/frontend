@@ -696,6 +696,7 @@ function DataTable({
   const [localPageSize, setLocalPageSize] = useState(
     getDefaultPaginationConfig(pagination).pageSize ?? 5,
   )
+  const [isPageSizeMenuOpen, setIsPageSizeMenuOpen] = useState(false)
   const hasDetail = Boolean(detail)
   const detailToggleInFirstCell =
     hasDetail && detailTogglePlacement === 'first-cell' && columns.length > 0
@@ -745,6 +746,7 @@ function DataTable({
   const paginationItems = paginationConfig.items ?? getPaginationItems(currentPage, totalPages)
   const paginationSummary =
     paginationConfig.summary ?? `${firstItem}-${lastItem} dari ${totalRows} data`
+  const pageSizeMenuId = `${sanitizeId(idPrefix)}-page-size-options`
 
   const handleToggleRow = (rowKey) => {
     if (!hasDetail) {
@@ -768,12 +770,14 @@ function DataTable({
     handleToggleRow(rowKey)
   }
 
-  const handlePageSizeChange = (event) => {
-    const nextPageSize = Number(event.target.value)
+  const handlePageSizeChange = (value) => {
+    const nextPageSize = Number(value)
 
     if (!Number.isInteger(nextPageSize) || nextPageSize <= 0) {
       return
     }
+
+    setIsPageSizeMenuOpen(false)
 
     if (typeof paginationConfig.onPageSizeChange === 'function') {
       paginationConfig.onPageSizeChange(nextPageSize)
@@ -782,6 +786,18 @@ function DataTable({
 
     setLocalPageSize(nextPageSize)
     setLocalPage(1)
+  }
+
+  const handlePageSizeBlur = (event) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      setIsPageSizeMenuOpen(false)
+    }
+  }
+
+  const handlePageSizeKeyDown = (event) => {
+    if (event.key === 'Escape') {
+      setIsPageSizeMenuOpen(false)
+    }
   }
 
   const handlePreviousPage = () => {
@@ -1083,23 +1099,65 @@ function DataTable({
             <p className="users-table-pagination__summary">{paginationSummary}</p>
 
             {canChangePageSize ? (
-              <label className="users-table-pagination__page-size">
+              <div
+                className="users-table-pagination__page-size"
+                onBlur={handlePageSizeBlur}
+                onKeyDown={handlePageSizeKeyDown}
+              >
                 <span className="users-table-pagination__page-size-label">
                   {paginationConfig.pageSizeLabel ?? 'Rows per page'}
                 </span>
-                <select
-                  className="users-table-pagination__select"
-                  value={currentPageSize}
-                  onChange={handlePageSizeChange}
-                  aria-label={paginationConfig.pageSizeAriaLabel ?? 'Jumlah baris per halaman'}
-                >
-                  {pageSizeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                <div className="users-table-pagination__page-size-menu">
+                  <button
+                    className="users-table-pagination__select"
+                    type="button"
+                    onClick={() => setIsPageSizeMenuOpen((isOpen) => !isOpen)}
+                    aria-haspopup="listbox"
+                    aria-expanded={isPageSizeMenuOpen}
+                    aria-controls={pageSizeMenuId}
+                    aria-label={paginationConfig.pageSizeAriaLabel ?? 'Jumlah baris per halaman'}
+                  >
+                    <span>{currentPageSize}</span>
+                    {isPageSizeMenuOpen ? (
+                      <ChevronUp size={16} aria-hidden="true" />
+                    ) : (
+                      <ChevronDown size={16} aria-hidden="true" />
+                    )}
+                  </button>
+
+                  {isPageSizeMenuOpen ? (
+                    <div
+                      className="users-table-pagination__page-size-options"
+                      id={pageSizeMenuId}
+                      role="listbox"
+                      aria-label={paginationConfig.pageSizeAriaLabel ?? 'Jumlah baris per halaman'}
+                    >
+                      {pageSizeOptions.map((option) => (
+                        <button
+                          key={option}
+                          className={joinClassNames(
+                            'users-table-pagination__page-size-option',
+                            option === currentPageSize
+                              ? 'users-table-pagination__page-size-option--active'
+                              : '',
+                          )}
+                          type="button"
+                          role="option"
+                          aria-selected={option === currentPageSize}
+                          onClick={() => handlePageSizeChange(option)}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+                {paginationConfig.pageSizeSuffix ? (
+                  <span className="users-table-pagination__page-size-suffix">
+                    {paginationConfig.pageSizeSuffix}
+                  </span>
+                ) : null}
+              </div>
             ) : null}
           </div>
 
